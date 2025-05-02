@@ -70,16 +70,17 @@ class Pensioenfonds:
             rendementen_per_jaar = []
 
             for leeftijd in leeftijden_inleg:
-                resultaat = self.opbrengst(leeftijd_inleg=leeftijd, leeftijd_opname=leeftijd_afname)
-                opbrengsten.append(resultaat["opbrengst"])
-                rendementen_per_jaar.append(resultaat["rendement_per_jaar"])
+                netto_resultaat = self.opbrengst(leeftijd_inleg=leeftijd, leeftijd_opname=leeftijd_afname)
+                opbrengsten.append(netto_resultaat["opbrengst"])
+                rendementen_per_jaar.append(netto_resultaat["rendement_per_jaar"])
+            netto_inleg = netto_resultaat["inleg"]
+            
 
             # Plot voor opbrengsten
             plt.subplot(2, 1, 1)
             plt.plot(leeftijden_inleg, opbrengsten, label=f"Opname op {leeftijd_afname} jaar", color=kleuren[idx])
 
             # Gebruik netto inleg voor referentie opbrengst
-            netto_inleg = self.FISCAAL_MAXIMUM * (1 - self.belastingsvoordeel)
             referentie_opbrengsten = []
             for leeftijd in leeftijden_inleg:
                 jaren = leeftijd_afname - leeftijd
@@ -102,8 +103,8 @@ class Pensioenfonds:
         for idx, (leeftijden_inleg, leeftijd_afname) in enumerate(leeftijden_inleg_afname_pairs):
             rendementen_per_jaar = []
             for leeftijd in leeftijden_inleg:
-                resultaat = self.opbrengst(leeftijd_inleg=leeftijd, leeftijd_opname=leeftijd_afname)
-                rendementen_per_jaar.append(resultaat["rendement_per_jaar"])
+                netto_resultaat = self.opbrengst(leeftijd_inleg=leeftijd, leeftijd_opname=leeftijd_afname)
+                rendementen_per_jaar.append(netto_resultaat["rendement_per_jaar"])
             plt.semilogy(leeftijden_inleg, rendementen_per_jaar, label=f"Opname op {leeftijd_afname} jaar", color=kleuren[idx])
 
         plt.xlabel("Leeftijd inleg")

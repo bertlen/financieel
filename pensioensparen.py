@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 
-RENDEMENT_PENSIOENFONDS_ARGENTA = 0.08 # jaarlijks rendement
+RENDEMENT_PENSIOENFONDS_ARGENTA = 0.07 # jaarlijks rendement
 KOSTEN_PENSIOENFONDS_ARGENTA = 1.44e-2  # jaarlijkse kosten
 BELASTINGSVOORDEEL_PENSIOENSPAREN = 0.3  # Belastingsvoordeel bij inleg
 BELASTING_PENSIOENSPAREN = 0.08  # Belastingpercentage bij opname (op inleg gedaan voor de 60ste verjaardag)
@@ -32,7 +32,11 @@ class Pensioenfonds:
         :param leeftijd_opname: De leeftijd waarop het kapitaal wordt opgenomen.
         :return: Een dict met netto 'opbrengst', 'inleg', 'rendement' en 'rendement_per_jaar'.
         """
-        netto_inleg = bruto_inleg * (1 - self.belastingsvoordeel) # Dit is wat we werkelijk betalen, na aftrek belastingsvoordeel
+        # Het deel van de inleg onder het fiscaal maximum krijgt een belastingsvoordeel
+        # Bereken het netto inlegbedrag na belastingsvoordeel
+        teruggetrokken_belasting = min(bruto_inleg, self.FISCAAL_MAXIMUM) * self.belastingsvoordeel
+        netto_inleg = bruto_inleg - teruggetrokken_belasting
+        
         jaren = leeftijd_opname - leeftijd_inleg
         
         kapitaal = bruto_inleg

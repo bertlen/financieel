@@ -60,39 +60,39 @@ class Pensioenfonds:
             "rendement": netto_rendement,
             "rendement_per_jaar": netto_rendement_per_jaar
         }
-    def plot_rendement(self, leeftijden_inleg_afname_pairs, referentie=RENDEMENT_REFERENTIE):
+    def plot_rendement(self, leeftijden_inleg_opname, referentie=RENDEMENT_REFERENTIE):
         """
         Genereer een plot van de opbrengsten en netto rendement per jaar voor meerdere combinaties van leeftijden van inleg en opname.
 
-        :param leeftijden_inleg_afname_pairs: Een lijst van tuples, waarbij elke tuple bestaat uit een range van leeftijden voor inleg en een leeftijd voor opname.
+        :param leeftijden_inleg_opname: Een lijst van tuples, waarbij elke tuple bestaat uit een startleeftijd en een leeftijd voor opname.
         """
         plt.figure(figsize=(12, 8))
 
         kleuren = plt.cm.tab10.colors  # Gebruik een colormap voor consistente kleuren
-        for idx, (leeftijden_inleg, leeftijd_afname) in enumerate(leeftijden_inleg_afname_pairs):
+        for idx, (leeftijd_start, leeftijd_opname) in enumerate(leeftijden_inleg_opname):
+            leeftijden_inleg = range(leeftijd_start, leeftijd_opname)
             opbrengsten = []
             rendementen_per_jaar = []
 
             for leeftijd in leeftijden_inleg:
-                netto_resultaat = self.opbrengst(leeftijd_inleg=leeftijd, leeftijd_opname=leeftijd_afname)
+                netto_resultaat = self.opbrengst(leeftijd_inleg=leeftijd, leeftijd_opname=leeftijd_opname)
                 opbrengsten.append(netto_resultaat["opbrengst"])
                 rendementen_per_jaar.append(netto_resultaat["rendement_per_jaar"])
             netto_inleg = netto_resultaat["inleg"]
-            
 
             # Plot voor opbrengsten
             plt.subplot(2, 1, 1)
-            plt.plot(leeftijden_inleg, opbrengsten, label=f"Opname op {leeftijd_afname} jaar", color=kleuren[idx])
+            plt.plot(leeftijden_inleg, opbrengsten, label=f"Opname op {leeftijd_opname} jaar", color=kleuren[idx])
 
             # Gebruik netto inleg voor referentie opbrengst
             referentie_opbrengsten = []
             for leeftijd in leeftijden_inleg:
-                jaren = leeftijd_afname - leeftijd
+                jaren = leeftijd_opname - leeftijd
                 referentie_kapitaal = netto_inleg
                 for _ in range(jaren):
                     referentie_kapitaal *= (1 + referentie)
                 referentie_opbrengsten.append(referentie_kapitaal)
-            plt.semilogy(leeftijden_inleg, referentie_opbrengsten, linestyle='--', color=kleuren[idx], label=f"Referentie opname op {leeftijd_afname} jaar")
+            plt.semilogy(leeftijden_inleg, referentie_opbrengsten, linestyle='--', color=kleuren[idx], label=f"Referentie opname op {leeftijd_opname} jaar")
 
         # Configuratie voor opbrengsten plot
         plt.subplot(2, 1, 1)
@@ -104,12 +104,13 @@ class Pensioenfonds:
 
         # Netto rendement per jaar
         plt.subplot(2, 1, 2)
-        for idx, (leeftijden_inleg, leeftijd_afname) in enumerate(leeftijden_inleg_afname_pairs):
+        for idx, (leeftijd_start, leeftijd_opname) in enumerate(leeftijden_inleg_opname):
+            leeftijden_inleg = range(leeftijd_start, leeftijd_opname)
             rendementen_per_jaar = []
             for leeftijd in leeftijden_inleg:
-                netto_resultaat = self.opbrengst(leeftijd_inleg=leeftijd, leeftijd_opname=leeftijd_afname)
+                netto_resultaat = self.opbrengst(leeftijd_inleg=leeftijd, leeftijd_opname=leeftijd_opname)
                 rendementen_per_jaar.append(netto_resultaat["rendement_per_jaar"])
-            plt.semilogy(leeftijden_inleg, rendementen_per_jaar, label=f"Opname op {leeftijd_afname} jaar", color=kleuren[idx])
+            plt.semilogy(leeftijden_inleg, rendementen_per_jaar, label=f"Opname op {leeftijd_opname} jaar", color=kleuren[idx])
 
         plt.xlabel("Leeftijd inleg")
         plt.ylabel("Netto rendement per jaar (%)")
@@ -122,5 +123,4 @@ class Pensioenfonds:
         plt.show()
 
 pensioenfondsArgenta = Pensioenfonds(rendement=RENDEMENT_PENSIOENFONDS_ARGENTA, kosten=KOSTEN_PENSIOENFONDS_ARGENTA)
-pensioenfondsArgenta.plot_rendement([(range(30, 60), 60), (range(30, 67), 67)])
-
+pensioenfondsArgenta.plot_rendement([(30, 60), (30, 67)])
